@@ -6,3 +6,4 @@
  * To change this template use File | Settings | File Templates.
  */
 read = (function(){ var oldRead = read; return function(prompt) { return String(oldRead(prompt)) } })();
+
