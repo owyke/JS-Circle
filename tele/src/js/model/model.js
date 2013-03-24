@@ -52,6 +52,18 @@ var tele = (function (){
             entries[entryNumber-1] = updateEntry;
         }
 
+
+
+        this.searchOnName = function(query) {
+            var searchHits = [];
+            for(var i = 0; i < entries.length; i++) {
+                if(entries[i].name == query) {
+                    searchHits.push(entries[i]);
+                }
+            }
+            return searchHits;
+        }
+
     }
 
     my.addTestEntries = function (addressBook) {

@@ -20,6 +20,8 @@ tele = (function(oldTele){
         var subChoice;
         var numberOfEntries;
 
+
+
         while(choice !== "0") {
             numberOfEntries = addressBook.getEntries().length;
             choice = -1;
@@ -72,6 +74,16 @@ tele = (function(oldTele){
                         addressBook.removeEntry(subChoice);
                     }
                     break;
+                case "5":
+                    var query = getQueryString();
+                    var searchResult = addressBook.searchOnName(query);
+                    if(searchResult.length < 1){
+                        println("No entries found.");
+                    } else {
+                        printRecords(searchResult);
+                    }
+                    pressEnter();
+                    break;
                 case "T":
                     tele.addTestEntries(addressBook);
                     break;
@@ -94,6 +106,7 @@ function renderMenu() {
     println("2. List all entries");
     println("3. Update entry");
     println("4. Delete entry")
+    println("5. Search entry")
     println("");
     println("0. Exit program");
 }
@@ -118,8 +131,7 @@ function getContactType() {
     println("Allowed contact types: ");
 
     for(var i = 0; i < types.length; i++)
-    {
-        println(types[i] + " -> " + tele.allowedContactTypes[types[i]]);
+    {        println(types[i] + " -> " + tele.allowedContactTypes[types[i]]);
     }
 
     while(!isValidContactType(contactType)) {
@@ -164,6 +176,17 @@ function getUpdatedEntry(oldEntry) {
     }
     return new tele.Entry(newName, newContactType, newInfo);
 }
+
+
+
+function getQueryString() {
+    clearScreen();
+    var query = read("Search for contact with name: ");
+
+    return query;
+
+}
+
 
 function clearScreen() {
         println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
