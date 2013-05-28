@@ -10,6 +10,26 @@
     <script src="js/jquery-ui-1.10.3.custom.js"></script>
     <style>
 
+        html {
+            min-height: 100%;
+        }
+        body {
+
+            /* Safari 4-5, Chrome 1-9 */
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#aaaaaa), to(#eeeeee));
+
+            /* Safari 5.1, Chrome 10+ */
+            background: -webkit-linear-gradient(top, #eeeeee, #aaaaaa);
+
+            /* Firefox 3.6+ */
+            background: -moz-linear-gradient(top, #eeeeee, #aaaaaa);
+
+            /* IE 10 */
+            background: -ms-linear-gradient(top, #eeeeee, #aaaaaa);
+
+            /* Opera 11.10+ */
+            background: -o-linear-gradient(top, #eeeeee, #aaaaaa);
+        }
         #info {
             margin-top: 1em;
         }
@@ -27,9 +47,15 @@
             width: 100px;
             vertical-align: middle;
         }
+        th,
+        table {
+            border: 1px solid black;
+        }
 
         td {
             vertical-align: top;
+            border-left: 1px solid black;
+            padding: 2px 4px 2px 4px;
         }
 
         tr:nth-child(even) {
@@ -41,12 +67,26 @@
         }
 
         .controls {
-            margin-left: 1em;
+            width: 15%;
+            display: inline-block;
+        }
 
+        .info {
+            width: 82%;
+            display: inline-block;
+        }
+        .name {
+            width: 85%;
+            display: inline-block;
+        }
+
+        .info .type {
+            width: 60px;
+            display: inline-block;
         }
 
         .edit-icon {
-            margin-left: 0.5em;
+            margin-left: 0.2em;
         }
 
         li {
@@ -81,23 +121,22 @@
             <th class="nameCol">Name</th>
             <th class="contactCol">Contact info</th>
             <th class="removeCol">Remove</th>
-            <th></th>
         </tr>
         </thead>
         <tbody data-bind="foreach: entries">
         <tr>
-            <td data-bind="text: name()"></td>
+            <td><span class="name" data-bind="text: name()"></span><span><a href="#" data-bind="click: addNewContactInformation"><img class="remove-icon"src="img/add.png"/></a></span></td>
             <td>
                 <ul data-bind="foreach: contactInformation">
-                    <li><span data-bind="text: type()"></span>: <span
-                            data-bind="text: contactInformation()"></span><span class="controls"><a href="#"
-                                                                                                    data-bind="click: $parent.removeContactInformation"><img
-                            class="remove-icon" src="img/remove.png"/></a><a href="#"
-                                                                             data-bind="click: $parent.editContactInformation"><img
-                            class="edit-icon" src="img/edit.png"/></a></span></li>
+                    <li>
+                        <span class="info"><span class="type" data-bind="text: type()"></span><span data-bind="text: contactInformation()"></span></span>
+                        <span class="controls">
+                            <a href="#" data-bind="click: $parent.removeContactInformation"><img class="remove-icon" src="img/remove.png"/></a>
+                            <a href="#" data-bind="click: $parent.editContactInformation"><img class="edit-icon" src="img/edit.png"/></a>
+                        </span>
+                    </li>
                 </ul>
-                <span><a href="#" data-bind="click: addNewContactInformation"><img class="remove-icon"
-                                                                                   src="img/add.png"/></a></span>
+
             </td>
             <td class="removeCol"><a href="#" data-bind="click: $root.removeEntry">Remove entry</a></td>
         </tr>
@@ -115,7 +154,7 @@
                     <option value="Mail">Mail</option>
                 </select>
                 <label for="info">Info</label>
-                <input type="text" name="info" id="info" value="" class="text ui-widget-content ui-corner-all"/>
+                <input type="text" name="info" id="info" class="text ui-widget-content ui-corner-all"/>
             </fieldset>
         </form>
     </div>
@@ -209,6 +248,9 @@
 
 
     var teleViewModel = new TeleViewModel();
+    $('form').submit(function() {
+        return false;
+    });
     addTestData(teleViewModel);
     ko.applyBindings(teleViewModel);
 </script>
