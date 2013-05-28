@@ -13,6 +13,7 @@
         html {
             min-height: 100%;
         }
+
         body {
 
             /* Safari 4-5, Chrome 1-9 */
@@ -30,6 +31,7 @@
             /* Opera 11.10+ */
             background: -o-linear-gradient(top, #eeeeee, #aaaaaa);
         }
+
         #info {
             margin-top: 1em;
         }
@@ -47,6 +49,7 @@
             width: 100px;
             vertical-align: middle;
         }
+
         th,
         table {
             border: 1px solid black;
@@ -75,6 +78,7 @@
             width: 82%;
             display: inline-block;
         }
+
         .name {
             width: 85%;
             display: inline-block;
@@ -123,16 +127,21 @@
             <th class="removeCol">Remove</th>
         </tr>
         </thead>
-        <tbody data-bind="foreach: entries">
+        <tbody data-bind="foreach: getEntries()">
         <tr>
-            <td><span class="name" data-bind="text: name()"></span><span><a href="#" data-bind="click: addNewContactInformation"><img class="remove-icon"src="img/add.png"/></a></span></td>
+            <td><span class="name" data-bind="text: getName()"></span><span><a href="#"
+                                                                               data-bind="click: addNewContactInformation"><img
+                    class="remove-icon" src="img/add.png"/></a></span></td>
             <td>
-                <ul data-bind="foreach: contactInformation">
+                <ul data-bind="foreach: getContactInformation()">
                     <li>
-                        <span class="info"><span class="type" data-bind="text: type()"></span><span data-bind="text: contactInformation()"></span></span>
+                        <span class="info"><span class="type" data-bind="text: getType()"></span><span
+                                data-bind="text: getInfo()"></span></span>
                         <span class="controls">
-                            <a href="#" data-bind="click: $parent.removeContactInformation"><img class="remove-icon" src="img/remove.png"/></a>
-                            <a href="#" data-bind="click: $parent.editContactInformation"><img class="edit-icon" src="img/edit.png"/></a>
+                            <a href="#" data-bind="click: $parent.removeContactInformation"><img class="remove-icon"
+                                                                                                 src="img/remove.png"/></a>
+                            <a href="#" data-bind="click: $parent.editContactInformation"><img class="edit-icon"
+                                                                                               src="img/edit.png"/></a>
                         </span>
                     </li>
                 </ul>
@@ -170,51 +179,72 @@
         return $("#contact-info-form").dialog('open');
     }
 
+
     function ContactInfo(type, info) {
-        var self = this;
-        self.type = ko.observable(type);
-        self.contactInformation = ko.observable(info);
+        var self = this,
+                type = ko.observable(type),
+                info = ko.observable(info);
+
+        self.getType = function() {
+            return type;
+        }
+        self.getInfo = function() {
+            return info;
+        }
     }
 
+    // Representing one entry in telephone book
     function Entry(name, contactInformation) {
-        var self = this;
-        self.name = ko.observable(name);
-        self.contactInformation = ko.observableArray();
+        var self = this,
+                name = ko.observable(name),
+                contactInformation = ko.observableArray();
+
+        self.getContactInformation = function () {
+            return contactInformation;
+        }
+
+        self.getName = function () {
+            return name;
+        }
 
         self.removeContactInformation = function (contactInfo) {
-            self.contactInformation.remove(contactInfo);
+            contactInformation.remove(contactInfo);
         };
 
+        //Will open dialog to edit existing contact information
         self.editContactInformation = function (contactInfo) {
-            initContactInfoForm(contactInfo.type(), contactInfo.contactInformation()).data('info', contactInfo);
+            initContactInfoForm(contactInfo.getType()(), contactInfo.getInfo()()).data('info', contactInfo);
         };
 
         self.addContactInformation = function (type, info) {
             var contactInfo = new ContactInfo(type, info);
-            self.contactInformation.push(contactInfo);
+            contactInformation.push(contactInfo);
         };
 
+        // Will open dialog to get new contact information
         self.addNewContactInformation = function () {
             var contactInfo = new ContactInfo();
             initContactInfoForm("Mail", "").data('info', contactInfo);
-            self.contactInformation.push(contactInfo);
+            contactInformation.push(contactInfo);
         };
     }
 
-
+    // Main view model thats bound
     function TeleViewModel() {
-        var self = this;
+        var self = this,
+                entries = ko.observableArray();
 
-        self.entries = ko.observableArray();
+        self.getEntries = function () {
+            return entries;
+        }
         self.addEntry = function (entry) {
-            self.entries.push(entry);
+            entries.push(entry);
         };
         self.removeEntry = function (entry) {
-            self.entries.remove(entry);
+            entries.remove(entry);
         };
-
         self.addNewEntry = function () {
-            self.entries.push(new Entry(prompt("Enter name")));
+            entries.push(new Entry(prompt("Enter name")));
         };
     }
     function addTestData(teleVm) {
@@ -236,8 +266,8 @@
         modal: true,
         buttons: {
             "Add info": function () {
-                $(this).data("info").type($('#type').val());
-                $(this).data("info").contactInformation($("#info").val());
+                $(this).data("info").getType()($('#type').val());
+                $(this).data("info").getInfo()($("#info").val());
                 $(this).dialog("close");
             },
             Cancel: function () {
@@ -247,10 +277,13 @@
     });
 
 
-    var teleViewModel = new TeleViewModel();
-    $('form').submit(function() {
+
+    // Binding to avoid page reloading when accidentally submitting form
+    $('form').submit(function () {
         return false;
     });
+
+    var teleViewModel = new TeleViewModel();
     addTestData(teleViewModel);
     ko.applyBindings(teleViewModel);
 </script>
