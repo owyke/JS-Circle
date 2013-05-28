@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <script src="js/knockout-2.2.1.debug.js"></script>
+    <link rel="stylesheet" href="css/normalize.css"/>
+    <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.10.3.custom.css"/>
+    <script src="js/jquery-1.10.0.min.js"></script>
+    <script src="js/jquery-ui-1.10.3.custom.js"></script>
+    <style>
+
+        #info {
+            margin-top: 1em;
+        }
+
+        th.nameCol {
+            width: 150px;
+        }
+
+        th.contactCol {
+            width: 300px;
+        }
+
+        td.removeCol,
+        th.removeCol {
+            width: 100px;
+            vertical-align: middle;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #eee;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #fff;
+        }
+
+        .controls {
+            margin-left: 1em;
+
+        }
+
+        .edit-icon {
+            margin-left: 0.5em;
+        }
+
+        li {
+            list-style-type: none;
+            padding: 0;
+            clear: both;
+        }
+
+        ul {
+            padding: 0;
+            margin: 0;
+        }
+
+        #addEntryButton {
+            margin-top: 1em;
+        }
+
+        #centered {
+            margin: 0 auto;
+            width: 600px;
+        }
+
+    </style>
+</head>
+<body>
+<div id="centered">
+    <h2>Contacts</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th class="nameCol">Name</th>
+            <th class="contactCol">Contact info</th>
+            <th class="removeCol">Remove</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody data-bind="foreach: entries">
+        <tr>
+            <td data-bind="text: name()"></td>
+            <td>
+                <ul data-bind="foreach: contactInformation">
+                    <li><span data-bind="text: type()"></span>: <span
+                            data-bind="text: contactInformation()"></span><span class="controls"><a href="#"
+                                                                                                    data-bind="click: $parent.removeContactInformation"><img
+                            class="remove-icon" src="img/remove.png"/></a><a href="#"
+                                                                             data-bind="click: $parent.editContactInformation"><img
+                            class="edit-icon" src="img/edit.png"/></a></span></li>
+                </ul>
+                <span><a href="#" data-bind="click: addNewContactInformation"><img class="remove-icon"
+                                                                                   src="img/add.png"/></a></span>
+            </td>
+            <td class="removeCol"><a href="#" data-bind="click: $root.removeEntry">Remove entry</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <div id="contact-info-form" title="Add contact info">
+        <form>
+            <fieldset>
+                <label for="type">Type</label>
+                <select name="type" id="type">
+                    <option value="Mobile">Mobile</option>
+                    <option value="Home">Home</option>
+                    <option value="Mail">Mail</option>
+                </select>
+                <label for="info">Info</label>
+                <input type="text" name="info" id="info" value="" class="text ui-widget-content ui-corner-all"/>
+            </fieldset>
+        </form>
+    </div>
+
+    <button id="addEntryButton" data-bind="click: addNewEntry">Add contact</button>
+</div>
+<script>
+    'use strict';
+
+    function initContactInfoForm(type, info) {
+        $("#contact-info-form #type").val(type);
+        $("#contact-info-form #info").val(info);
+        return $("#contact-info-form").dialog('open');
+    }
+
+    function ContactInfo(type, info) {
+        var self = this;
+        self.type = ko.observable(type);
+        self.contactInformation = ko.observable(info);
+    }
+
+    function Entry(name, contactInformation) {
+        var self = this;
+        self.name = ko.observable(name);
+        self.contactInformation = ko.observableArray();
+
+        self.removeContactInformation = function (contactInfo) {
+            self.contactInformation.remove(contactInfo);
+        };
+
+        self.editContactInformation = function (contactInfo) {
+            initContactInfoForm(contactInfo.type(), contactInfo.contactInformation()).data('info', contactInfo);
+        };
+
+        self.addContactInformation = function (type, info) {
+            var contactInfo = new ContactInfo(type, info);
+            self.contactInformation.push(contactInfo);
+        };
+
+        self.addNewContactInformation = function () {
+            var contactInfo = new ContactInfo();
+            initContactInfoForm("Mail", "").data('info', contactInfo);
+            self.contactInformation.push(contactInfo);
+        };
+    }
+
+
+    function TeleViewModel() {
+        var self = this;
+
+        self.entries = ko.observableArray();
+        self.addEntry = function (entry) {
+            self.entries.push(entry);
+        };
+        self.removeEntry = function (entry) {
+            self.entries.remove(entry);
+        };
+
+        self.addNewEntry = function () {
+            self.entries.push(new Entry(prompt("Enter name")));
+        };
+    }
+    function addTestData(teleVm) {
+
+        var entry = new Entry("Oskar Wyke");
+        entry.addContactInformation("Mobile", "073-6526176");
+        entry.addContactInformation("Mail", "oskar.wyke@gmail.com");
+        teleVm.addEntry(entry);
+        entry = new Entry("Åke Ångvält");
+        entry.addContactInformation("Mail", "ake.angvalt@gmail.com");
+        teleVm.addEntry(entry);
+    }
+
+
+    $("#contact-info-form").dialog({
+        autoOpen: false,
+        height: 240,
+        width: 500,
+        modal: true,
+        buttons: {
+            "Add info": function () {
+                $(this).data("info").type($('#type').val());
+                $(this).data("info").contactInformation($("#info").val());
+                $(this).dialog("close");
+            },
+            Cancel: function () {
+                $(this).dialog("close");
+            }
+        }
+    });
+
+
+    var teleViewModel = new TeleViewModel();
+    addTestData(teleViewModel);
+    ko.applyBindings(teleViewModel);
+</script>
+</body>
+</html>
